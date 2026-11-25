@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X Farmasi | Teknologi Farmasi — SMK Bhakti Kencana Cicurug</title>
+    
+    <!-- Google Fonts: Plus Jakarta Sans & Inter untuk tampilan bersih, modern, dan estetik -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome untuk Ikon Kefarmasian & UI -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- GSAP & ScrollTrigger CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+    <!-- Konfigurasi Tailwind Custom -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                }
+            }
+        };
+    </script>
+
+    <!-- Custom CSS untuk Liquid Glass & Organic Blobs (Light & Dark Mode) -->
+    <style>
+        /* Variabel Tema Terang & Gelap */
+        :root {
+            --bg-primary: #f4f7f6;
+            --bg-gradient-1: rgba(204, 251, 239, 0.75);
+            --bg-gradient-2: rgba(186, 230, 253, 0.7);
+            --bg-gradient-3: rgba(209, 250, 229, 0.8);
+            --text-main: #0f172a;
+            --glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0.35) 100%);
+            --glass-border: rgba(255, 255, 255, 0.75);
+            --glass-shadow: 0 12px 36px -6px rgba(15, 118, 110, 0.08), inset 0 1px 1px rgba(255, 255, 255, 0.9), inset 0 -1px 2px rgba(255, 255, 255, 0.35);
+            --glass-hover-border: rgba(255, 255, 255, 0.95);
+            --glass-hover-shadow: 0 20px 44px -8px rgba(13, 148, 136, 0.14), inset 0 1px 2px rgba(255, 255, 255, 1);
+            --nav-bg: rgba(255, 255, 255, 0.68);
+            --nav-border: rgba(255, 255, 255, 0.85);
+            --blob-opacity: 0.65;
+        }
+
+        html.dark {
+            --bg-primary: #060d13;
+            --bg-gradient-1: rgba(13, 148, 136, 0.22);
+            --bg-gradient-2: rgba(2, 132, 199, 0.18);
+            --bg-gradient-3: rgba(16, 185, 129, 0.18);
+            --text-main: #f1f5f9;
+            --glass-bg: linear-gradient(135deg, rgba(15, 28, 38, 0.62) 0%, rgba(10, 20, 29, 0.42) 100%);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --glass-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.55), inset 0 1px 1px rgba(255, 255, 255, 0.16), inset 0 -1px 2px rgba(255, 255, 255, 0.04);
+            --glass-hover-border: rgba(94, 234, 212, 0.32);
+            --glass-hover-shadow: 0 22px 48px -8px rgba(13, 148, 136, 0.24), inset 0 1px 2px rgba(255, 255, 255, 0.24);
+            --nav-bg: rgba(12, 23, 33, 0.72);
+            --nav-border: rgba(255, 255, 255, 0.14);
+            --blob-opacity: 0.42;
+        }
+
+        /* Latar belakang utama dengan transisi halus */
+        body {
+            background-color: var(--bg-primary);
+            background-image: 
+                radial-gradient(at 0% 0%, var(--bg-gradient-1) 0px, transparent 50%),
+                radial-gradient(at 100% 10%, var(--bg-gradient-2) 0px, transparent 50%),
+                radial-gradient(at 50% 100%, var(--bg-gradient-3) 0px, transparent 55%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            overflow-x: hidden;
+            transition: background-color 0.4s ease, color 0.4s ease;
+        }
+
+        /* Efek Liquid Blob Organik yang Mengalir Lembut */
+        .liquid-blob {
+            position: fixed;
+            filter: blur(75px);
+            z-index: -1;
+            opacity: var(--blob-opacity);
+            pointer-events: none;
+            will-change: transform, border-radius;
+            transition: opacity 0.4s ease, background 0.4s ease;
+            animation: morphBlob 18s ease-in-out infinite alternate;
+        }
+
+        .blob-1 {
+            top: -10%;
+            left: -8%;
+            width: 45vw;
+            height: 45vw;
+            max-width: 560px;
+            max-height: 560px;
+            background: linear-gradient(135deg, #5eead4 0%, #38bdf8 100%);
+            animation-delay: 0s;
+        }
+
+        html.dark .blob-1 {
+            background: linear-gradient(135deg, #0d9488 0%, #0369a1 100%);
+        }
+
+        .blob-2 {
+            top: 35%;
+            right: -10%;
+            width: 42vw;
+            height: 42vw;
+            max-width: 520px;
+            max-height: 520px;
+            background: linear-gradient(135deg, #a7f3d0 0%, #bae6fd 100%);
+            animation-delay: -6s;
+        }
+
+        html.dark .blob-2 {
+            background: linear-gradient(135deg, #047857 0%, #0284c7 100%);
+        }
+
+        .blob-3 {
+            bottom: -12%;
+            left: 18%;
+            width: 48vw;
+            height: 48vw;
+            max-width: 580px;
+            max-height: 580px;
+            background: linear-gradient(135deg, #99f6e4 0%, #c7d2fe 100%);
+            animation-delay: -12s;
+        }
+
+        html.dark .blob-3 {
+            background: linear-gradient(135deg, #115e59 0%, #1e3a8a 100%);
+        }
+
+        @keyframes morphBlob {
+            0% {
+                border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%;
+                transform: translate(0, 0) rotate(0deg) scale(1);
+            }
+            33% {
+                border-radius: 70% 30% 46% 54% / 30% 29% 71% 70%;
+                transform: translate(35px, -25px) rotate(12deg) scale(1.06);
+            }
+            66% {
+                border-radius: 100% 60% 60% 100% / 100% 100% 60% 60%;
+                transform: translate(-25px, 30px) rotate(-8deg) scale(0.96);
+            }
+            100% {
+                border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%;
+                transform: translate(15px, 15px) rotate(6deg) scale(1.03);
+            }
+        }
+
+        /* Kartu Liquid Glass (Glassmorphism Premium dengan Spekular Highlight) */
+        .liquid-glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(22px) saturate(160%);
+            -webkit-backdrop-filter: blur(22px) saturate(160%);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow);
+            transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s ease, border-color 0.4s ease, background 0.4s ease;
+        }
+
+        .liquid-glass-hover:hover {
+            transform: translateY(-5px);
+            border-color: var(--glass-hover-border);
+            box-shadow: var(--glass-hover-shadow);
+        }
+
+        /* Floating Glass Navbar */
+        .glass-nav {
+            background: var(--nav-bg);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border: 1px solid var(--nav-border);
+            box-shadow: 0 10px 30px -5px rgba(15, 118, 110, 0.09);
+            transition: background-color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+        }
+
+        /* Tombol Pill Estetik */
+        .btn-liquid-primary {
+            background: linear-gradient(135deg, #0d9488 0%, #0284c7 100%);
+            box-shadow: 0 10px 25px -5px rgba(13, 148, 136, 0.38), inset 0 1px 1px rgba(255, 255, 255, 0.45);
+            transition: all 0.3s ease;
+        }
+        .btn-liquid-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 30px -4px rgba(13, 148, 136, 0.48), inset 0 1px 1px rgba(255, 255, 255, 0.6);
+        }
+
+        /* Custom Scrollbar Halus */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #5eead4;
+            border-radius: 9999px;
+        }
+        html.dark ::-webkit-scrollbar-thumb {
+            background: #0f766e;
+        }
+    </style>
+
+    <!-- Inisialisasi Tema Awal Sebelum Render untuk Mencegah Flash -->
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('xfarmasi-theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        })();
+    </script>
+</head>
+<body class="antialiased selection:bg-teal-200 selection:text-teal-900 dark:selection:bg-teal-800 dark:selection:text-teal-100">
+
+    <!-- Latar Belakang Liquid Blobs Organik -->
+    <div class="liquid-blob blob-1" aria-hidden="true"></div>
+    <div class="liquid-blob blob-2" aria-hidden="true"></div>
+    <div class="liquid-blob blob-3" aria-hidden="true"></div>
+
+    <!-- ==========================================
+         1. FLOATING GLASS NAVBAR
+    =========================================== -->
+    <header class="fixed top-4 inset-x-0 z-50 px-4 sm:px-6">
+        <nav class="glass-nav max-w-5xl mx-auto rounded-full px-4 sm:px-6 py-3 flex items-center justify-between">
+            <!-- Brand / Logo Kelas -->
+            <a href="#beranda" class="flex items-center gap-2.5 group">
+                <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-teal-500 to-sky-400 flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform">
+                    <i class="fa-solid fa-mortar-pestle text-sm"></i>
+                </div>
+                <div class="leading-tight">
+                    <span class="font-display font-bold text-slate-800 dark:text-slate-100 text-sm sm:text-base block transition-colors">X Farmasi</span>
+                    <span class="text-[10px] sm:text-xs font-medium text-teal-700 dark:text-teal-300 block transition-colors">SMK Bhakti Kencana Cicurug</span>
+                </div>
+            </a>
+
+            <!-- Menu Desktop -->
+            <ul class="hidden md:flex items-center gap-1 text-sm font-medium text-slate-600 dark:text-slate-300">
+                <li><a href="#beranda" class="px-3.5 py-2 rounded-full hover:bg-white/70 dark:hover:bg-white/10 hover:text-teal-700 dark:hover:text-teal-300 transition-colors">Beranda</a></li>
+                <li><a href="#tentang" class="px-3.5 py-2 rounded-full hover:bg-white/70 dark:hover:bg-white/10 hover:text-teal-700 dark:hover:text-teal-300 transition-colors">Tentang & Visi</a></li>
+                <li><a href="#galeri" class="px-3.5 py-2 rounded-full hover:bg-white/70 dark:hover:bg-white/10 hover:text-teal-700 dark:hover:text-teal-300 transition-colors">Galeri Kelas</a></li>
+                <li><a href="#struktur" class="px-3.5 py-2 rounded-full hover:bg-white/70 dark:hover:bg-white/10 hover:text-teal-700 dark:hover:text-teal-300 transition-colors">Struktur</a></li>
+                <li><a href="#praktikum" class="px-3.5 py-2 rounded-full hover:bg-white/70 dark:hover:bg-white/10 hover:text-teal-700 dark:hover:text-teal-300 transition-colors">Praktikum</a></li>
+            </ul>
+
+            <!-- Tombol Aksi, Toggle Tema & Mobile Menu Toggle -->
+            <div class="flex items-center gap-2">
+                <!-- Tombol Pengalih Mode Gelap / Terang -->
+                <button id="theme-toggle" aria-label="Ganti Mode Gelap atau Terang" title="Ganti Mode Gelap / Terang" class="w-10 h-10 rounded-full bg-white/75 dark:bg-slate-800/75 hover:bg-white dark:hover:bg-slate-700 text-slate-700 dark:text-amber-300 border border-white dark:border-white/15 shadow-sm flex items-center justify-center transition-all active:scale-90">
+                    <i id="theme-icon-sun" class="fa-solid fa-sun text-base hidden dark:inline-block"></i>
+                    <i id="theme-icon-moon" class="fa-solid fa-moon text-base inline-block dark:hidden text-teal-700"></i>
+                </button>
+
+                <a href="#galeri" class="hidden sm:inline-flex items-center gap-2 text-xs font-semibold bg-white/80 dark:bg-white/10 hover:bg-white dark:hover:bg-white/20 text-teal-800 dark:text-teal-200 px-4 py-2 rounded-full border border-white dark:border-white/15 shadow-sm transition-all">
+                    <i class="fa-regular fa-images text-teal-600 dark:text-teal-400"></i>
+                    <span>Momen Kelas</span>
+                </a>
+                <button id="mobile-menu-btn" aria-label="Buka Menu" class="md:hidden w-10 h-10 rounded-full bg-white/70 dark:bg-slate-800/75 flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-700 border border-white dark:border-white/15 transition-colors">
+                    <i class="fa-solid fa-bars text-base"></i>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Dropdown Menu Mobile -->
+        <div id="mobile-menu" class="hidden md:hidden max-w-5xl mx-auto mt-2 liquid-glass rounded-3xl p-4 shadow-xl">
+            <ul class="flex flex-col gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-200">
+                <li><a href="#beranda" class="mobile-link block px-4 py-2.5 rounded-2xl hover:bg-white/70 dark:hover:bg-white/10 hover:text-teal-700 dark:hover:text-teal-300">Beranda</a></li>
+                <li><a href="#tentang" class="mobile-link block px-4 py-2.5 rounded-2xl hover:bg-white/70 dark:hover:bg-white/10 hover:text-teal-700 dark:hover:text-teal-300">Tentang & Visi Misi</a></li>
+                <li><a href="#galeri" class="mobile-link block px-4 py-2.5 rounded-2xl hover:bg-white/70 dark:hover:bg-white/10 hover:text-teal-700 dark:hover:text-teal-300">Galeri Foto Kelas</a></li>
+                <li><a href="#struktur" class="mobile-link block px-4 py-2.5 rounded-2xl hover:bg-white/70 dark:hover:bg-white/10 hover:text-teal-700 dark:hover:text-teal-300">Struktur Organisasi</a></li>
+                <li><a href="#praktikum" class="mobile-link block px-4 py-2.5 rounded-2xl hover:bg-white/70 dark:hover:bg-white/10 hover:text-teal-700 dark:hover:text-teal-300">Mata Pelajaran & Praktikum</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <main class="pt-28 sm:pt-32 pb-20 space-y-24 sm:space-y-32">
+
+        <!-- ==========================================
+             2. HERO SECTION
+        =========================================== -->
+        <section id="beranda" class="max-w-6xl mx-auto px-4 sm:px-6">
+            <div class="liquid-glass rounded-[2.25rem] p-7 sm:p-12 lg:p-16 relative overflow-hidden">
+                <!-- Dekorasi Molekul / Kapsul Transparan di Sudut -->
+                <div class="absolute -right-12 -top-12 w-56 h-56 rounded-full bg-gradient-to-br from-teal-300/30 to-sky-300/20 blur-2xl pointer-events-none"></div>
+                <div class="absolute -left-10 -bottom-14 w-48 h-48 rounded-full bg-gradient-to-tr from-emerald-300/25 to-teal-200/20 blur-2xl pointer-events-none"></div>
+
+                <div class="grid lg:grid-cols-12 gap-10 items-center relative z-10">
+                    <!-- Kolom Teks Hero -->
+                    <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
+                        <!-- Badge Estetik -->
+                        <div class="hero-stagger inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/75 dark:bg-white/10 border border-white dark:border-white/15 shadow-sm text-xs sm:text-sm font-semibold text-teal-800 dark:text-teal-300 transition-colors">
+                            <span class="w-2 h-2 rounded-full bg-teal-500 animate-pulse"></span>
+                            <span>Kompetensi Keahlian Teknologi Farmasi</span>
+                        </div>
+
+                        <!-- Judul Besar -->
+                        <div class="hero-stagger space-y-2">
+                            <h1 class="font-display font-extrabold text-4xl sm:text-6xl lg:text-7xl tracking-tight text-slate-900 dark:text-white transition-colors">
+                                Kelas <span class="bg-gradient-to-r from-teal-600 via-emerald-600 to-sky-600 dark:from-teal-400 dark:via-emerald-300 dark:to-sky-400 bg-clip-text text-transparent">X Farmasi</span>
+                            </h1>
+                            <p class="font-display font-semibold text-lg sm:text-2xl text-slate-700 dark:text-slate-200 transition-colors">
+                                Teknologi Farmasi — SMK Bhakti Kencana Cicurug
+                            </p>
+                        </div>
+
+                        <!-- Deskripsi Singkat -->
+                        <p class="hero-stagger text-slate-600 dark:text-slate-300 text-sm sm:text-base leading-relaxed max-w-2xl mx-auto lg:mx-0 transition-colors">
+                            Generasi muda calon tenaga teknis kefarmasian yang teliti, berintegritas, dan inovatif. Bersama meracik ilmu, ketekunan laboratorium, serta solidaritas tanpa batas.
+                        </p>
+
+                        <!-- Tombol CTA -->
+                        <div class="hero-stagger flex flex-wrap items-center justify-center lg:justify-start gap-3.5 pt-2">
+                            <a href="#galeri" class="btn-liquid-primary text-white font-semibold text-sm px-6 py-3.5 rounded-full inline-flex items-center gap-2.5">
+                                <i class="fa-solid fa-camera-retro"></i>
+                                <span>Lihat Galeri Kelas</span>
+                            </a>
+                            <a href="#tentang" class="bg-white/75 dark:bg-white/10 hover:bg-white dark:hover:bg-white/20 text-slate-800 dark:text-slate-100 font-semibold text-sm px-6 py-3.5 rounded-full border border-white dark:border-white/15 shadow-sm inline-flex items-center gap-2 transition-all">
+                                <span>Profil & Visi Misi</span>
+                                <i class="fa-solid fa-arrow-down text-xs text-teal-600 dark:text-teal-400"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Kolom Kartu Visual Hero (Highlight Motto & Kartu Kaca) -->
+                    <div class="lg:col-span-5 hero-stagger">
+                        <div class="liquid-glass rounded-3xl p-6 sm:p-7 space-y-5 relative">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-11 h-11 rounded-2xl bg-teal-500/15 dark:bg-teal-400/20 border border-teal-500/20 flex items-center justify-center text-teal-700 dark:text-teal-300">
+                                        <i class="fa-solid fa-flask-vial text-lg"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs font-medium text-slate-500 dark:text-slate-400">Tahun Ajaran</p>
+                                        <p class="font-display font-bold text-slate-800 dark:text-slate-100 text-sm">2025 / 2026</p>
+                                    </div>
+                                </div>
+                                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100/80 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-200/70 dark:border-emerald-400/25">
+                                    Aktif & Solid
+                                </span>
+                            </div>
+
+                            <div class="p-4 rounded-2xl bg-white/60 dark:bg-slate-900/45 border border-white/80 dark:border-white/10 space-y-1.5 transition-colors">
+                                <p class="text-[11px] uppercase tracking-wider font-bold text-teal-700 dark:text-teal-400">Motto Kebanggaan Kami</p>
+                                <p class="font-display font-bold text-base sm:text-lg text-slate-800 dark:text-slate-100 leading-snug">
+                                    “Presisi dalam Takaran, Solid dalam Kebersamaan.”
+                                </p>
+                            </div>
+
+                            <!-- Mini Statistik Cepat -->
+                            <div class="grid grid-cols-3 gap-3 pt-1">
+                                <div class="bg-white/55 dark:bg-slate-900/40 rounded-2xl p-3 text-center border border-white/70 dark:border-white/10 transition-colors">
+                                    <p class="font-display font-extrabold text-xl sm:text-2xl text-teal-700 dark:text-teal-300">32</p>
+                                    <p class="text-[11px] font-medium text-slate-600 dark:text-slate-400">Siswa Aktif</p>
+                                </div>
+                                <div class="bg-white/55 dark:bg-slate-900/40 rounded-2xl p-3 text-center border border-white/70 dark:border-white/10 transition-colors">
+                                    <p class="font-display font-extrabold text-xl sm:text-2xl text-sky-700 dark:text-sky-300">3</p>
+                                    <p class="text-[11px] font-medium text-slate-600 dark:text-slate-400">Lab Utama</p>
+                                </div>
+                                <div class="bg-white/55 dark:bg-slate-900/40 rounded-2xl p-3 text-center border border-white/70 dark:border-white/10 transition-colors">
+                                    <p class="font-display font-extrabold text-xl sm:text-2xl text-emerald-700 dark:text-emerald-300">100%</p>
+                                    <p class="text-[11px] font-medium text-slate-600 dark:text-slate-400">Kompak</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             3. TENTANG KELAS & JURUSAN (VISI MISI & PILAR)
+        =========================================== -->
+        <section id="tentang" class="max-w-6xl mx-auto px-4 sm:px-6 space-y-10">
+            <!-- Header Section -->
+            <div class="reveal-up text-center max-w-2xl mx-auto space-y-3">
+                <span class="inline-block px-3.5 py-1 rounded-full bg-white/70 dark:bg-white/10 border border-white dark:border-white/15 text-xs font-bold uppercase tracking-wider text-teal-700 dark:text-teal-300">
+                    Tentang Kelas & Jurusan
+                </span>
+                <h2 class="font-display font-bold text-3xl sm:text-4xl text-slate-900 dark:text-white">
+                    Mengenal Teknologi Farmasi
+                </h2>
+                <p class="text-slate-600 dark:text-slate-300 text-sm sm:text-base">
+                    Di bawah naungan <strong class="text-slate-800 dark:text-white">SMK Bhakti Kencana Cicurug</strong>, kelas X Farmasi dibekali kompetensi dasar peracikan obat, identifikasi simplisia herbal, serta pelayanan kefarmasian berstandar industri dan klinis.
+                </p>
+            </div>
+
+            <!-- Grid Visi & Misi -->
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Kartu Visi -->
+                <div class="reveal-up liquid-glass liquid-glass-hover rounded-3xl p-7 sm:p-8 space-y-4">
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-400 text-white flex items-center justify-center shadow-md">
+                        <i class="fa-solid fa-eye text-lg"></i>
+                    </div>
+                    <h3 class="font-display font-bold text-xl text-slate-900 dark:text-white">Visi Kelas X Farmasi</h3>
+                    <p class="text-slate-600 dark:text-slate-300 text-sm sm:text-base leading-relaxed">
+                        Menjadi kelas unggulan di SMK Bhakti Kencana Cicurug yang berkarakter akhlakul karimah, unggul dalam ketelitian praktikum kefarmasian, serta menjunjung tinggi rasa kekeluargaan dan empati terhadap kesehatan masyarakat.
+                    </p>
+                </div>
+
+                <!-- Kartu Misi -->
+                <div class="reveal-up liquid-glass liquid-glass-hover rounded-3xl p-7 sm:p-8 space-y-4">
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-sky-500 to-teal-400 text-white flex items-center justify-center shadow-md">
+                        <i class="fa-solid fa-bullseye text-lg"></i>
+                    </div>
+                    <h3 class="font-display font-bold text-xl text-slate-900 dark:text-white">Misi Utama Kami</h3>
+                    <ul class="space-y-2.5 text-slate-600 dark:text-slate-300 text-sm sm:text-base">
+                        <li class="flex items-start gap-2.5">
+                            <i class="fa-solid fa-circle-check text-teal-600 dark:text-teal-400 mt-1 text-sm"></i>
+                            <span>Menerapkan disiplin tinggi dan SOP keselamatan kerja di setiap praktikum laboratorium.</span>
+                        </li>
+                        <li class="flex items-start gap-2.5">
+                            <i class="fa-solid fa-circle-check text-teal-600 dark:text-teal-400 mt-1 text-sm"></i>
+                            <span>Menguasai dasar ilmu resep, farmakognosi, dan kimia farmasi secara kolaboratif.</span>
+                        </li>
+                        <li class="flex items-start gap-2.5">
+                            <i class="fa-solid fa-circle-check text-teal-600 dark:text-teal-400 mt-1 text-sm"></i>
+                            <span>Membangun lingkungan belajar yang suportif, inklusif, dan bebas perundungan.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 3 Pilar Utama Jurusan Teknologi Farmasi -->
+            <div class="grid sm:grid-cols-3 gap-6 pt-2">
+                <!-- Pilar 1: Farmasetika -->
+                <div class="reveal-up liquid-glass liquid-glass-hover rounded-3xl p-6 space-y-3">
+                    <div class="w-11 h-11 rounded-2xl bg-teal-500/15 dark:bg-teal-400/20 text-teal-700 dark:text-teal-300 flex items-center justify-center">
+                        <i class="fa-solid fa-mortar-pestle text-lg"></i>
+                    </div>
+                    <h4 class="font-display font-bold text-lg text-slate-900 dark:text-white">Farmasetika Dasar</h4>
+                    <p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
+                        Mempelajari seni dan ilmu meracik sediaan obat (pulveres, kapsul, salep, dan larutan) sesuai kaidah resep dokter dengan takaran presisi.
+                    </p>
+                </div>
+
+                <!-- Pilar 2: Farmakognosi -->
+                <div class="reveal-up liquid-glass liquid-glass-hover rounded-3xl p-6 space-y-3">
+                    <div class="w-11 h-11 rounded-2xl bg-emerald-500/15 dark:bg-emerald-400/20 text-emerald-700 dark:text-emerald-300 flex items-center justify-center">
+                        <i class="fa-solid fa-leaf text-lg"></i>
+                    </div>
+                    <h4 class="font-display font-bold text-lg text-slate-900 dark:text-white">Farmakognosi</h4>
+                    <p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
+                        Mengenal bahan obat alami dari tumbuhan, hewan, dan mineral (simplisia), serta pengolahan obat tradisional Indonesia yang berkhasiat.
+                    </p>
+                </div>
+
+                <!-- Pilar 3: Kimia Farmasi -->
+                <div class="reveal-up liquid-glass liquid-glass-hover rounded-3xl p-6 space-y-3">
+                    <div class="w-11 h-11 rounded-2xl bg-sky-500/15 dark:bg-sky-400/20 text-sky-700 dark:text-sky-300 flex items-center justify-center">
+                        <i class="fa-solid fa-atom text-lg"></i>
+                    </div>
+                    <h4 class="font-display font-bold text-lg text-slate-900 dark:text-white">Kimia Farmasi</h4>
+                    <p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
+                        Memahami struktur senyawa aktif, reaksi kimia, serta analisis kualitatif dan kuantitatif bahan baku sediaan farmasi.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             4. GALERI / SLIDE FOTO KELAS (INTERAKTIF)
+        =========================================== -->
+        <section id="galeri" class="max-w-6xl mx-auto px-4 sm:px-6 space-y-8">
+            <div class="reveal-up flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                <div class="space-y-2">
+                    <span class="inline-block px-3.5 py-1 rounded-full bg-white/70 dark:bg-white/10 border border-white dark:border-white/15 text-xs font-bold uppercase tracking-wider text-teal-700 dark:text-teal-300">
+                        Dokumentasi & Momen
+                    </span>
+                    <h2 class="font-display font-bold text-3xl sm:text-4xl text-slate-900 dark:text-white">
+                        Galeri Kegiatan X Farmasi
+                    </h2>
+                </div>
+                <p class="text-slate-600 dark:text-slate-300 text-sm max-w-md">
+                    Jejak langkah kebersamaan kami di ruang kelas, laboratorium praktikum, hingga kegiatan sekolah di SMK Bhakti Kencana Cicurug.
+                </p>
+            </div>
+
+            <!-- Carousel Container Liquid Glass -->
+            <div id="carousel-wrapper" class="reveal-up liquid-glass rounded-[2rem] p-4 sm:p-6 relative group">
+                <!-- Viewport Gambar -->
+                <div class="relative h-[320px] sm:h-[440px] lg:h-[500px] w-full rounded-2xl overflow-hidden bg-slate-200 dark:bg-slate-800">
+                    <!-- Gambar Slide Aktif -->
+                    <img id="carousel-image" 
+                         src="https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&fit=crop&w=1400&q=80" 
+                         alt="Praktikum Dasar Kefarmasian"
+                         onerror="this.src='https://placehold.co/1200x600/0d9488/ffffff?text=Praktikum+Laboratorium+X+Farmasi'"
+                         class="w-full h-full object-cover object-center">
+                    
+                    <!-- Overlay Gradasi Gelap Lembut untuk Keterbacaan Caption -->
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-900/20 to-transparent"></div>
+
+                    <!-- Badge Kategori & Nomor Slide di Pojok Kiri Atas -->
+                    <div class="absolute top-4 left-4 right-4 flex items-center justify-between">
+                        <span id="carousel-tag" class="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white/85 dark:bg-slate-900/80 backdrop-blur-md text-teal-900 dark:text-teal-300 border border-white/50 dark:border-white/15 shadow-sm">
+                            Praktikum Laboratorium
+                        </span>
+                        <span id="carousel-counter" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-900/50 backdrop-blur-md text-white border border-white/20">
+                            1 / 4
+                        </span>
+                    </div>
+
+                    <!-- Caption Kaca di Bawah Gambar -->
+                    <div id="carousel-caption-box" class="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6 liquid-glass rounded-2xl p-4 sm:p-5 bg-white/80 dark:bg-slate-900/75">
+                        <h3 id="carousel-title" class="font-display font-bold text-lg sm:text-xl text-slate-900 dark:text-white">
+                            Praktikum Peracikan Sediaan Pulveres & Kapsul
+                        </h3>
+                        <p id="carousel-desc" class="text-slate-700 dark:text-slate-300 text-xs sm:text-sm mt-1 leading-relaxed">
+                            Ketelitian menimbang bahan aktif dan menggerus homogen di Laboratorium Farmasetika SMK Bhakti Kencana Cicurug.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Kontrol Navigasi Bawah (Prev/Next + Dots Indicator) -->
+                <div class="flex items-center justify-between mt-4 px-1">
+                    <!-- Indikator Dots -->
+                    <div id="carousel-dots" class="flex items-center gap-2" role="tablist" aria-label="Pilih Slide Foto">
+                        <!-- Diisi otomatis via JavaScript -->
+                    </div>
+
+                    <!-- Tombol Prev & Next -->
+                    <div class="flex items-center gap-2.5">
+                        <button id="prev-slide" aria-label="Foto Sebelumnya" class="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/80 dark:bg-slate-800/80 hover:bg-white dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 hover:text-teal-700 dark:hover:text-teal-300 border border-white dark:border-white/15 shadow-sm flex items-center justify-center transition-all active:scale-95">
+                            <i class="fa-solid fa-chevron-left text-sm"></i>
+                        </button>
+                        <button id="next-slide" aria-label="Foto Selanjutnya" class="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-teal-600 hover:bg-teal-700 text-white shadow-md flex items-center justify-center transition-all active:scale-95">
+                            <i class="fa-solid fa-chevron-right text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             5. STRUKTUR ORGANISASI KELAS & WALI KELAS
+        =========================================== -->
+        <section id="struktur" class="max-w-6xl mx-auto px-4 sm:px-6 space-y-10">
+            <div class="reveal-up text-center max-w-2xl mx-auto space-y-3">
+                <span class="inline-block px-3.5 py-1 rounded-full bg-white/70 dark:bg-white/10 border border-white dark:border-white/15 text-xs font-bold uppercase tracking-wider text-teal-700 dark:text-teal-300">
+                    Kepengurusan Kelas
+                </span>
+                <h2 class="font-display font-bold text-3xl sm:text-4xl text-slate-900 dark:text-white">
+                    Struktur Organisasi X Farmasi
+                </h2>
+                <p class="text-slate-600 dark:text-slate-300 text-sm sm:text-base">
+                    Sinergi pembimbing dan pengurus inti dalam menjaga ketertiban, kekompakan, serta kelancaran agenda kelas.
+                </p>
+            </div>
+
+            <!-- Kartu Wali Kelas (Highlight Utama di Tengah) -->
+            <div class="reveal-up max-w-md mx-auto">
+                <div class="liquid-glass liquid-glass-hover rounded-3xl p-6 text-center relative overflow-hidden border-2 border-white dark:border-teal-400/30">
+                    <div class="inline-block px-3 py-1 rounded-full bg-teal-600 text-white text-[11px] font-bold uppercase tracking-wider mb-4 shadow-sm">
+                        Wali Kelas X Farmasi
+                    </div>
+                    <div class="w-20 h-20 mx-auto rounded-full bg-gradient-to-tr from-teal-500 to-sky-400 p-1 shadow-md mb-3">
+                        <div class="w-full h-full rounded-full bg-white dark:bg-slate-900 flex items-center justify-center text-teal-700 dark:text-teal-300 font-display font-bold text-2xl">
+                            <i class="fa-solid fa-user-doctor"></i>
+                        </div>
+                    </div>
+                    <h3 class="font-display font-bold text-xl text-slate-900 dark:text-white">apt. Siti Rahmawati, S.Farm.</h3>
+                    <p class="text-xs sm:text-sm font-medium text-teal-700 dark:text-teal-300 mt-0.5">Guru Produktif Teknologi Farmasi</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-3 italic">
+                        “Disiplin adalah kunci utama seorang farmasis sejati.”
+                    </p>
+                </div>
+            </div>
+
+            <!-- Grid Pengurus Inti (Ketua, Wakil, Sekretaris, Bendahara) -->
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                <!-- Ketua Kelas -->
+                <div class="reveal-up liquid-glass liquid-glass-hover rounded-3xl p-6 text-center space-y-3">
+                    <div class="w-14 h-14 mx-auto rounded-2xl bg-teal-500/15 dark:bg-teal-400/20 text-teal-700 dark:text-teal-300 flex items-center justify-center font-display font-bold text-lg">
+                        <i class="fa-solid fa-crown"></i>
+                    </div>
+                    <div>
+                        <span class="text-[11px] font-bold uppercase tracking-wider text-teal-700 dark:text-teal-300">Ketua Kelas</span>
+                        <h4 class="font-display font-bold text-base sm:text-lg text-slate-900 dark:text-white mt-0.5">Muhammad Rizky Pratama</h4>
+                    </div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Koordinator umum kelas & penghubung komunikasi guru.</p>
+                </div>
+
+                <!-- Wakil Ketua -->
+                <div class="reveal-up liquid-glass liquid-glass-hover rounded-3xl p-6 text-center space-y-3">
+                    <div class="w-14 h-14 mx-auto rounded-2xl bg-sky-500/15 dark:bg-sky-400/20 text-sky-700 dark:text-sky-300 flex items-center justify-center font-display font-bold text-lg">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <div>
+                        <span class="text-[11px] font-bold uppercase tracking-wider text-sky-700 dark:text-sky-300">Wakil Ketua</span>
+                        <h4 class="font-display font-bold text-base sm:text-lg text-slate-900 dark:text-white mt-0.5">Nayla Putri Ramadhani</h4>
+                    </div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Penanggung jawab kedisiplinan piket & kesiapan praktikum.</p>
+                </div>
+
+                <!-- Sekretaris -->
+                <div class="reveal-up liquid-glass liquid-glass-hover rounded-3xl p-6 text-center space-y-3">
+                    <div class="w-14 h-14 mx-auto rounded-2xl bg-emerald-500/15 dark:bg-emerald-400/20 text-emerald-700 dark:text-emerald-300 flex items-center justify-center font-display font-bold text-lg">
+                        <i class="fa-solid fa-pen-nib"></i>
+                    </div>
+                    <div>
+                        <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-300">Sekretaris</span>
+                        <h4 class="font-display font-bold text-base sm:text-lg text-slate-900 dark:text-white mt-0.5">Alya Zahra Salsabila</h4>
+                    </div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Administrasi absensi harian, jurnal kelas & dokumentasi.</p>
+                </div>
+
+                <!-- Bendahara -->
+                <div class="reveal-up liquid-glass liquid-glass-hover rounded-3xl p-6 text-center space-y-3">
+                    <div class="w-14 h-14 mx-auto rounded-2xl bg-indigo-500/15 dark:bg-indigo-400/20 text-indigo-700 dark:text-indigo-300 flex items-center justify-center font-display font-bold text-lg">
+                        <i class="fa-solid fa-wallet"></i>
+                    </div>
+                    <div>
+                        <span class="text-[11px] font-bold uppercase tracking-wider text-indigo-700 dark:text-indigo-300">Bendahara</span>
+                        <h4 class="font-display font-bold text-base sm:text-lg text-slate-900 dark:text-white mt-0.5">Fajar Nugraha</h4>
+                    </div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Pengelolaan kas kelas transparan & dana keperluan lab.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             6. JADWAL PRAKTIKUM / MATA PELAJARAN UNGGULAN (TAB INTERAKTIF)
+        =========================================== -->
+        <section id="praktikum" class="max-w-5xl mx-auto px-4 sm:px-6 space-y-8">
+            <div class="reveal-up text-center max-w-2xl mx-auto space-y-3">
+                <span class="inline-block px-3.5 py-1 rounded-full bg-white/70 dark:bg-white/10 border border-white dark:border-white/15 text-xs font-bold uppercase tracking-wider text-teal-700 dark:text-teal-300">
+                    Kurikulum Produktif
+                </span>
+                <h2 class="font-display font-bold text-3xl sm:text-4xl text-slate-900 dark:text-white">
+                    Fokus Pembelajaran & Praktikum
+                </h2>
+                <p class="text-slate-600 dark:text-slate-300 text-sm sm:text-base">
+                    Pilih kategori di bawah untuk melihat materi unggulan yang dipelajari siswa kelas X Farmasi.
+                </p>
+            </div>
+
+            <div class="reveal-up liquid-glass rounded-[2rem] p-5 sm:p-8 space-y-6">
+                <!-- Navigasi Tab -->
+                <div class="flex flex-wrap justify-center gap-2 sm:gap-3" role="tablist">
+                    <button class="tab-btn active px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold transition-all bg-teal-600 text-white shadow-md" data-tab="dasar">
+                        <i class="fa-solid fa-book-medical mr-1.5"></i> Dasar Kefarmasian
+                    </button>
+                    <button class="tab-btn px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold transition-all bg-white/70 dark:bg-slate-800/70 text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-700" data-tab="lab">
+                        <i class="fa-solid fa-flask mr-1.5"></i> Praktikum Laboratorium
+                    </button>
+                    <button class="tab-btn px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold transition-all bg-white/70 dark:bg-slate-800/70 text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-700" data-tab="apotek">
+                        <i class="fa-solid fa-prescription-bottle-medical mr-1.5"></i> Simulasi Apotek
+                    </button>
+                </div>
+
+                <!-- Konten Tab Dinamis -->
+                <div id="tab-content-container" class="bg-white/65 dark:bg-slate-900/50 border border-white/90 dark:border-white/10 rounded-3xl p-6 sm:p-8 transition-colors">
+                    <!-- Isi dirender oleh JS agar halus saat transisi -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ==========================================
+         FOOTER MINIMALIS GLASS
+    =========================================== -->
+    <footer class="max-w-6xl mx-auto px-4 sm:px-6 pb-10">
+        <div class="liquid-glass rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-teal-600 to-sky-500 text-white flex items-center justify-center shadow-sm">
+                    <i class="fa-solid fa-mortar-pestle text-sm"></i>
+                </div>
+                <div>
+                    <p class="font-display font-bold text-slate-900 dark:text-white text-sm sm:text-base">Kelas X Farmasi — Teknologi Farmasi</p>
+                    <p class="text-xs text-slate-600 dark:text-slate-400">SMK Bhakti Kencana Cicurug, Kabupaten Sukabumi</p>
+                </div>
+            </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400">
+                &copy; 2026 X Farmasi BKC. Dibuat dengan semangat kebersamaan & presisi.
+            </p>
+        </div>
+    </footer>
+
+    <!-- ==========================================
+         JAVASCRIPT: THEME TOGGLE, CAROUSEL, TABS, & ANIMASI GSAP
+    =========================================== -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // 0. Sistem Pengalih Tema (Dark / Light Mode)
+            const themeToggleBtn = document.getElementById("theme-toggle");
+            const htmlEl = document.documentElement;
+
+            themeToggleBtn.addEventListener("click", () => {
+                const isDark = htmlEl.classList.toggle("dark");
+                localStorage.setItem("xfarmasi-theme", isDark ? "dark" : "light");
+
+                // Animasi rotasi halus pada tombol pengalih tema
+                gsap.fromTo(themeToggleBtn, 
+                    { rotate: -30, scale: 0.88 }, 
+                    { rotate: 0, scale: 1, duration: 0.4, ease: "back.out(1.7)" }
+                );
+            });
+
+            // 1. Registrasi Plugin GSAP ScrollTrigger
+            gsap.registerPlugin(ScrollTrigger);
+
+            // Animasi Entrance Hero Section
+            gsap.from(".hero-stagger", {
+                y: 28,
+                opacity: 0,
+                duration: 0.85,
+                stagger: 0.12,
+                ease: "power3.out",
+                clearProps: "transform"
+            });
+
+            // Animasi Reveal saat Scroll untuk setiap section/kartu
+            gsap.utils.toArray(".reveal-up").forEach((elem) => {
+                gsap.from(elem, {
+                    scrollTrigger: {
+                        trigger: elem,
+                        start: "top 86%",
+                        toggleActions: "play none none none"
+                    },
+                    y: 32,
+                    opacity: 0,
+                    duration: 0.75,
+                    ease: "power2.out",
+                    clearProps: "transform"
+                });
+            });
+
+            // 2. Toggle Mobile Menu
+            const mobileBtn = document.getElementById("mobile-menu-btn");
+            const mobileMenu = document.getElementById("mobile-menu");
+            const mobileLinks = document.querySelectorAll(".mobile-link");
+
+            mobileBtn.addEventListener("click", () => {
+                mobileMenu.classList.toggle("hidden");
+            });
+
+            mobileLinks.forEach(link => {
+                link.addEventListener("click", () => {
+                    mobileMenu.classList.add("hidden");
+                });
+            });
+
+            // 3. Galeri / Slide Foto Kelas Interaktif
+            const slidesData = [
+                {
+                    image: "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&fit=crop&w=1400&q=80",
+                    fallback: "https://placehold.co/1200x600/0d9488/ffffff?text=Praktikum+Laboratorium+Farmasetika",
+                    tag: "Praktikum Laboratorium",
+                    title: "Praktikum Peracikan Sediaan Pulveres & Kapsul",
+                    desc: "Ketelitian menimbang bahan aktif menggunakan timbangan gram halus serta penggerusan homogen di Lab Farmasetika SMK Bhakti Kencana Cicurug."
+                },
+                {
+                    image: "https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&w=1400&q=80",
+                    fallback: "https://placehold.co/1200x600/0284c7/ffffff?text=Identifikasi+Simplisia+Farmakognosi",
+                    tag: "Farmakognosi",
+                    title: "Pengamatan Mikroskopik & Identifikasi Simplisia Herbal",
+                    desc: "Siswa X Farmasi melakukan uji organoleptis dan identifikasi fragmen tanaman obat asli Indonesia."
+                },
+                {
+                    image: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1400&q=80",
+                    fallback: "https://placehold.co/1200x600/059669/ffffff?text=Diskusi+Kelompok+Kelas+X+Farmasi",
+                    tag: "Kebersamaan Kelas",
+                    title: "Diskusi Kelompok & Bedah Jurnal Resep Dokter",
+                    desc: "Suasana belajar interaktif di ruang kelas—saling membantu memahami perhitungan dosis dan bahasa Latin resep."
+                },
+                {
+                    image: "https://images.unsplash.com/photo-1581093588401-fbb62a02f120?auto=format&fit=crop&w=1400&q=80",
+                    fallback: "https://placehold.co/1200x600/0f766e/ffffff?text=Kunjungan+Industri+dan+Simulasi+Apotek",
+                    tag: "Kegiatan Sekolah",
+                    title: "Simulasi Pelayanan Kefarmasian & KIE Pasien",
+                    desc: "Melatih komunikasi efektif dan etika profesi dalam memberikan informasi penggunaan obat kepada pasien."
+                }
+            ];
+
+            let currentSlide = 0;
+            let slideInterval;
+            const imgEl = document.getElementById("carousel-image");
+            const tagEl = document.getElementById("carousel-tag");
+            const counterEl = document.getElementById("carousel-counter");
+            const titleEl = document.getElementById("carousel-title");
+            const descEl = document.getElementById("carousel-desc");
+            const captionBox = document.getElementById("carousel-caption-box");
+            const dotsContainer = document.getElementById("carousel-dots");
+            const carouselWrapper = document.getElementById("carousel-wrapper");
+
+            // Render Dots Indikator
+            function renderDots() {
+                dotsContainer.innerHTML = "";
+                slidesData.forEach((_, idx) => {
+                    const dot = document.createElement("button");
+                    dot.setAttribute("aria-label", `Slide ${idx + 1}`);
+                    dot.className = idx === currentSlide
+                        ? "h-2.5 w-8 rounded-full bg-teal-600 transition-all duration-300"
+                        : "h-2.5 w-2.5 rounded-full bg-slate-400/50 hover:bg-teal-400 transition-all duration-300";
+                    dot.addEventListener("click", () => goToSlide(idx));
+                    dotsContainer.appendChild(dot);
+                });
+            }
+
+            // Fungsi Ganti Slide dengan Animasi GSAP
+            function goToSlide(index) {
+                currentSlide = (index + slidesData.length) % slidesData.length;
+                const data = slidesData[currentSlide];
+
+                // Animasi fade & scale halus menggunakan GSAP
+                gsap.to([imgEl, captionBox], {
+                    opacity: 0,
+                    y: 8,
+                    duration: 0.22,
+                    ease: "power2.in",
+                    onComplete: () => {
+                        imgEl.src = data.image;
+                        imgEl.onerror = () => { imgEl.src = data.fallback; };
+                        tagEl.textContent = data.tag;
+                        counterEl.textContent = `${currentSlide + 1} / ${slidesData.length}`;
+                        titleEl.textContent = data.title;
+                        descEl.textContent = data.desc;
+                        renderDots();
+
+                        gsap.to([imgEl, captionBox], {
+                            opacity: 1,
+                            y: 0,
+                            duration: 0.35,
+                            ease: "power2.out"
+                        });
+                    }
+                });
+            }
+
+            document.getElementById("prev-slide").addEventListener("click", () => goToSlide(currentSlide - 1));
+            document.getElementById("next-slide").addEventListener("click", () => goToSlide(currentSlide + 1));
+
+            // Autoplay dengan Pause saat Hover
+            function startAutoPlay() {
+                slideInterval = setInterval(() => goToSlide(currentSlide + 1), 5000);
+            }
+            function stopAutoPlay() {
+                clearInterval(slideInterval);
+            }
+
+            carouselWrapper.addEventListener("mouseenter", stopAutoPlay);
+            carouselWrapper.addEventListener("mouseleave", startAutoPlay);
+
+            // Inisialisasi awal carousel
+            renderDots();
+            startAutoPlay();
+
+            // 4. Tab Interaktif Mata Pelajaran & Praktikum
+            const tabsData = {
+                dasar: {
+                    badge: "Teori & Fondasi Kefarmasian",
+                    title: "Dasar-Dasar Teknologi Farmasi",
+                    schedule: "Senin & Selasa • Ruang Teori 04",
+                    description: "Membekali siswa kelas X dengan pemahaman menyeluruh mengenai regulasi kefarmasian, sejarah farmasi, singkatan bahasa Latin pada resep, serta perhitungan dosis obat secara akurat.",
+                    highlights: [
+                        "Penggolongan Obat (Bebas, Bebas Terbatas, Keras, Narkotika)",
+                        "Perhitungan Dosis Maksimum (DM) Anak & Dewasa",
+                        "Pengenalan Undang-Undang Kesehatan & Etika Farmasi",
+                        "Anatomi Fisiologi Manusia Dasar"
+                    ]
+                },
+                lab: {
+                    badge: "Praktikum Terjadwal",
+                    title: "Praktikum Laboratorium Farmasetika & Kimia",
+                    schedule: "Rabu & Kamis • Lab Farmasetika & Lab Kimia",
+                    description: "Sesi praktik langsung di laboratorium dengan standar alat pelindung diri (jas lab, masker, sarung tangan). Siswa dilatih terampil menggunakan mortir-stamper, timbangan miligram, dan alat gelas kimia.",
+                    highlights: [
+                        "Pembuatan Sediaan Serbuk Bagi (Pulveres) & Kapsul",
+                        "Peracikan Sediaan Semi Padat (Unguenta / Salep & Krim)",
+                        "Kalibrasi & Penimbangan Bahan Obat Presisi",
+                        "Uji Identifikasi Kualitatif Senyawa & Simplisia"
+                    ]
+                },
+                apotek: {
+                    badge: "Simulasi Klinis & Pelayanan",
+                    title: "Simulasi Pelayanan Apotek & Manajemen Perbekalan",
+                    schedule: "Jumat • Mini Apotek Simulasi BKC",
+                    description: "Melatih kesiapan kerja siswa melalui simulasi alur pelayanan resep di apotek, penataan obat berdasarkan metode FEFO/FIFO dan alfabetis, serta edukasi pasien.",
+                    highlights: [
+                        "Skrining Administratif, Farmasetik, dan Klinis Resep",
+                        "Penulisan Etiket Putih (Obat Dalam) & Etiket Biru (Obat Luar)",
+                        "Manajemen Penyimpanan Obat & Kartu Stok",
+                        "Praktik Komunikasi, Informasi, dan Edukasi (KIE)"
+                    ]
+                }
+            };
+
+            const tabButtons = document.querySelectorAll(".tab-btn");
+            const tabContainer = document.getElementById("tab-content-container");
+
+            function renderTabContent(key) {
+                const item = tabsData[key];
+                const listHTML = item.highlights.map(point => `
+                    <div class="flex items-start gap-2.5 bg-white/70 dark:bg-slate-800/60 p-3 rounded-2xl border border-white dark:border-white/10 transition-colors">
+                        <i class="fa-solid fa-check-circle text-teal-600 dark:text-teal-400 mt-0.5 text-sm"></i>
+                        <span class="text-xs sm:text-sm text-slate-700 dark:text-slate-200 font-medium">${point}</span>
+                    </div>
+                `).join("");
+
+                gsap.to(tabContainer, {
+                    opacity: 0,
+                    y: 6,
+                    duration: 0.18,
+                    onComplete: () => {
+                        tabContainer.innerHTML = `
+                            <div class="space-y-4">
+                                <div class="flex flex-wrap items-center justify-between gap-2">
+                                    <span class="px-3 py-1 rounded-full bg-teal-500/15 dark:bg-teal-400/20 text-teal-800 dark:text-teal-300 text-xs font-bold">
+                                        ${item.badge}
+                                    </span>
+                                    <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                                        <i class="fa-regular fa-clock mr-1 text-teal-600 dark:text-teal-400"></i> ${item.schedule}
+                                    </span>
+                                </div>
+                                <h3 class="font-display font-bold text-xl sm:text-2xl text-slate-900 dark:text-white">${item.title}</h3>
+                                <p class="text-slate-600 dark:text-slate-300 text-sm sm:text-base leading-relaxed">${item.description}</p>
+                                <div class="grid sm:grid-cols-2 gap-3 pt-2">
+                                    ${listHTML}
+                                </div>
+                            </div>
+                        `;
+                        gsap.to(tabContainer, { opacity: 1, y: 0, duration: 0.28 });
+                    }
+                });
+            }
+
+            tabButtons.forEach(btn => {
+                btn.addEventListener("click", () => {
+                    tabButtons.forEach(b => {
+                        b.classList.remove("bg-teal-600", "text-white", "shadow-md");
+                        b.classList.add("bg-white/70", "dark:bg-slate-800/70", "text-slate-700", "dark:text-slate-200");
+                    });
+                    btn.classList.remove("bg-white/70", "dark:bg-slate-800/70", "text-slate-700", "dark:text-slate-200");
+                    btn.classList.add("bg-teal-600", "text-white", "shadow-md");
+
+                    renderTabContent(btn.dataset.tab);
+                });
+            });
+
+            // Tampilkan tab default saat pertama kali dimuat
+            renderTabContent("dasar");
+        });
+    </script>
+</body>
+</html>
